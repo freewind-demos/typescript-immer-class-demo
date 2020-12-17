@@ -1,22 +1,23 @@
-import produce from "immer"
+import produce, { immerable } from 'immer'
 
-type State = {
-  name: string,
-  age: number,
+class State {
+  // Notice: this is very important, it will not be maintained by immer if not provided this property
+  [immerable] = true
+
+  constructor(public name: string, public age: number) {
+  }
 }
 
-const names: State[] = [{
-  name: 'immer',
-  age: 1
-}];
+const originalState: State[] = [
+  new State('immer', 1)
+];
 
-const newState = produce(names, draft => {
+console.log('### originalState before change', originalState);
+
+const newState = produce(originalState, draft => {
   draft[0].age = 66;
-  draft.push({
-    name: 'new-name',
-    age: 100
-  });
+  draft.push(new State('new-name', 100));
 })
 
-console.log(names);
-console.log(newState);
+console.log('### originalState should not change:', originalState);
+console.log('### newState', newState);
